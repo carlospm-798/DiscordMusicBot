@@ -1,6 +1,3 @@
 .png
 *.txt
 *.env
-my_bot_env/
-!my_bot_env/src/
-!my_bot_env/src/bot.py
