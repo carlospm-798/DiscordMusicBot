@@ -22,9 +22,11 @@ song_queue = Queue()
 
 
 async def reproduce(ctx):
+    """Reproduce la siguiente canción en la cola si hay canciones disponibles."""
     global voice_client
     if not song_queue.empty():
         song_info = await song_queue.get()
+        print(f"Reproduciendo: {song_info['title']}")
         await ctx.send(f"▶️ Reproduciendo: {song_info['title']}")
 
         def after_playing(error):
@@ -40,6 +42,7 @@ async def reproduce(ctx):
 
 @bot.command(name="join")
 async def join(ctx):
+    """Hace que el bot se una al canal de voz del usuario."""
     global voice_client
     if ctx.author.voice:
         channel = ctx.author.voice.channel
@@ -51,40 +54,7 @@ async def join(ctx):
 
 @bot.command(name="add")
 async def add(ctx, url: str):
-    global voice_client
-    if voice_client is None or not voice_client.is_connected():
-        await ctx.send("❌ No estoy en un canal de voz. Usa `!join` primero.")
-        return
-
-    await ctx.send(f"🎵 Agregando: {url}")
-
-    # Configuración de yt-dlp para obtener la URL de streaming sin descargar
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "noplaylist": True,  # Permite manejar listas manualmente
-        "default_search": "ytsearch",  # Permite buscar por nombre si no es un link
-        "quiet": True,  # Reduce logs innecesarios
-    }
-
-    # Extraer la URL del audio sin descargar
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-
-        audio_url = info["url"]  # URL para streaming
-        song_info = {
-            "title": info["title"],
-            "url": audio_url
-        }
-        await song_queue.put(song_info)
-
-    # Reproducir la URL de audio directamente
-    voice_client.stop()
-    voice_client.play(discord.FFmpegPCMAudio(audio_url), after=lambda e: print(f"Reproducción terminada: {e}"))
-    await ctx.send(f"▶️ Reproduciendo: {info['title']}")
-
-'''
-@bot.command(name="play")
-async def play(ctx, url: str):
+    """Agrega una canción a la cola y la reproduce si no hay música en reproducción."""
     global voice_client
     if voice_client is None or not voice_client.is_connected():
         await ctx.send("❌ No estoy en un canal de voz. Usa `!join` primero.")
@@ -95,24 +65,38 @@ async def play(ctx, url: str):
     # Configuración de yt-dlp para obtener la URL de streaming sin descargar
     ydl_opts = {
         "format": "bestaudio/best",
-        "noplaylist": True,  # Evita descargar playlists completas
-        "default_search": "ytsearch",  # Permite buscar por nombre si no es un link
-        "quiet": True,  # Reduce logs innecesarios
+        "noplaylist": True,
+        "default_search": "ytsearch",
+        "quiet": True,
     }
 
-    # Extraer la URL del audio sin descargar
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
-        audio_url = info["url"]  # URL para streaming
 
-    # Reproducir la URL de audio directamente
-    voice_client.stop()
-    voice_client.play(discord.FFmpegPCMAudio(audio_url), after=lambda e: print(f"Reproducción terminada: {e}"))
-    await ctx.send(f"▶️ Reproduciendo: {info['title']}")
-'''
+        if "entries" in info:
+            for entry in info["entries"]:
+                entry_info = ydl.extract_info(entry["webpage_url"], download=False)
+                song_info = {
+                    "title": entry_info["title"],
+                    "url": entry_info["url"]
+                }
+                await song_queue.put(song_info)
+                print(f"Agregada a la cola: {song_info}")
+        else:
+            song_info = {
+                "title": info["title"],
+                "url": info["url"]
+            }
+            await song_queue.put(song_info)
+            print(f"Agregada a la cola: {song_info}")
+
+    if not voice_client.is_playing():
+        await reproduce(ctx)
+
 
 @bot.command(name="stop")
 async def stop(ctx):
+    """Detiene la música en reproducción."""
     global voice_client
     if voice_client and voice_client.is_playing():
         voice_client.stop()
@@ -123,6 +107,7 @@ async def stop(ctx):
 
 @bot.command(name="leave")
 async def leave(ctx):
+    """Desconecta el bot del canal de voz."""
     global voice_client
     if voice_client:
         await voice_client.disconnect()
@@ -134,6 +119,7 @@ async def leave(ctx):
 
 @bot.command(name="commands")
 async def commands_list(ctx):
+    """Lista de comandos disponibles."""
     help_message = """
 📜 **Lista de Comandos** 📜
 
@@ -150,4 +136,5 @@ async def commands_list(ctx):
     await ctx.send(help_message)
 
 
+# Iniciar el bot
 bot.run(TOKEN)
