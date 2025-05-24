@@ -9,7 +9,7 @@ class Music(commands.Cog):
     @commands.command(name="join")
     async def join(self, ctx):
         player = await get_player(ctx)
-        await ctx.send(f"Conectado a {ctx.author.voice.channel.name}")
+        await ctx.send(f"Connected {ctx.author.voice.channel.name}")
 
     @commands.command(name="leave")
     async def leave(self, ctx):
@@ -19,38 +19,23 @@ class Music(commands.Cog):
             if hasattr(player, "custom_queue"):
                 del player.custom_queue
                 del player.queue_index
-            await ctx.send("Desconectado y cola limpiada.")
+            await ctx.send("Disconnected")
         else:
-            await ctx.send("No estoy en ningún canal de voz.")
+            await ctx.send("I'm not in a voice channel")
     
     @commands.command(name="pause")
     async def pause(self, ctx):
         player = await get_player(ctx)
         
-        # 1) imprime qué objeto player estás obteniendo
         print(f"[DEBUG] Guild={ctx.guild.id} | player object: {player!r}")
         
-        # 2) imprime propiedades clave antes de pausar
-        print("[DEBUG BEFORE PAUSE] is_playing:", getattr(player, "is_playing", None))
-        print("[DEBUG BEFORE PAUSE] playing   :", getattr(player, "playing", None))
-        print("[DEBUG BEFORE PAUSE] paused    :", getattr(player, "paused", None))
-        print("[DEBUG BEFORE PAUSE] is_paused :", getattr(player, "is_paused", None))
-        
-        # 3) intenta pausar y captura errores
         try:
             await player.pause(True)
         except Exception as e:
             print(f"[ERROR] player.pause() raised: {e}")
-            return await ctx.send(f"❌ Error al pausar: `{e}`")
+            return await ctx.send(f"❌ Error during the pause: `{e}`")
         
-        # 4) imprime el mismo set de propiedades tras pausar
-        print("[DEBUG AFTER PAUSE ] is_playing:", getattr(player, "is_playing", None))
-        print("[DEBUG AFTER PAUSE ] playing   :", getattr(player, "playing", None))
-        print("[DEBUG AFTER PAUSE ] paused    :", getattr(player, "paused", None))
-        print("[DEBUG AFTER PAUSE ] is_paused :", getattr(player, "is_paused", None))
-        
-        # 5) notifica al usuario
-        await ctx.send("⏸️ Reproducción pausada.")
+        await ctx.send("⏸️ Pause")
 
 
     @commands.command(name="play")
@@ -60,8 +45,8 @@ class Music(commands.Cog):
         if search is None:
             if player.paused:
                 await player.pause(False)
-                return await ctx.send("▶️ Reanudando reproducción.")
-            return await ctx.send("Debes indicar una URL para reproducir si no estoy en pausa.")
+                return await ctx.send("▶️ Playing")
+            return await ctx.send("You should indicate and URL if I'm not in pause")
             
 
         if not hasattr(player, "custom_queue"):
@@ -87,16 +72,7 @@ class Music(commands.Cog):
 
     @commands.command(name="next")
     async def skip(self, ctx):
-        """Salta a la siguiente canción en la cola."""
-        player = await get_player(ctx)
-
-        # DEBUG START
-        print("DEBUG !next:")
-        print("  queue_index =", player.queue_index)
-        print("  queue titles =", [t.title for t in player.custom_queue])
-        print("  queue length =", len(player.custom_queue))
-        # DEBUG END     
-
+        player = await get_player(ctx)   
 
         if not hasattr(player, "custom_queue"):
             return await ctx.send("No music is playing.")
@@ -112,15 +88,7 @@ class Music(commands.Cog):
 
     @commands.command(name="prev")
     async def back(self, ctx):
-        """Vuelve a la canción anterior en la cola."""
-        player = await get_player(ctx)
-
-        # DEBUG START
-        print("DEBUG !next:")
-        print("  queue_index =", player.queue_index)
-        print("  queue titles =", [t.title for t in player.custom_queue])
-        print("  queue length =", len(player.custom_queue))
-        # DEBUG END     
+        player = await get_player(ctx)   
 
         if not hasattr(player, "custom_queue"):
             return await ctx.send("No music is playing.")
