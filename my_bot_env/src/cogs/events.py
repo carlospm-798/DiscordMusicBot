@@ -2,10 +2,27 @@ import yaml
 import wavelink
 from pathlib import Path
 from discord.ext import commands
+from bot_commands import message as get_help_message
 
 class Events(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        if msg.author.bot:
+            return
+
+        if msg.content.strip().lower() == "!help":
+            help_text = get_help_message()
+            await msg.channel.send(help_text)
+            return                          # <— aquí detenemos el flujo
+
+        # solo procesamos otros comandos
+        await self.bot.process_commands(msg)
+
+
 
     @commands.Cog.listener()
     async def on_ready(self):
