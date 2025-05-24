@@ -22,10 +22,47 @@ class Music(commands.Cog):
             await ctx.send("Desconectado y cola limpiada.")
         else:
             await ctx.send("No estoy en ningún canal de voz.")
+    
+    @commands.command(name="pause")
+    async def pause(self, ctx):
+        player = await get_player(ctx)
+        
+        # 1) imprime qué objeto player estás obteniendo
+        print(f"[DEBUG] Guild={ctx.guild.id} | player object: {player!r}")
+        
+        # 2) imprime propiedades clave antes de pausar
+        print("[DEBUG BEFORE PAUSE] is_playing:", getattr(player, "is_playing", None))
+        print("[DEBUG BEFORE PAUSE] playing   :", getattr(player, "playing", None))
+        print("[DEBUG BEFORE PAUSE] paused    :", getattr(player, "paused", None))
+        print("[DEBUG BEFORE PAUSE] is_paused :", getattr(player, "is_paused", None))
+        
+        # 3) intenta pausar y captura errores
+        try:
+            await player.pause(True)
+        except Exception as e:
+            print(f"[ERROR] player.pause() raised: {e}")
+            return await ctx.send(f"❌ Error al pausar: `{e}`")
+        
+        # 4) imprime el mismo set de propiedades tras pausar
+        print("[DEBUG AFTER PAUSE ] is_playing:", getattr(player, "is_playing", None))
+        print("[DEBUG AFTER PAUSE ] playing   :", getattr(player, "playing", None))
+        print("[DEBUG AFTER PAUSE ] paused    :", getattr(player, "paused", None))
+        print("[DEBUG AFTER PAUSE ] is_paused :", getattr(player, "is_paused", None))
+        
+        # 5) notifica al usuario
+        await ctx.send("⏸️ Reproducción pausada.")
+
 
     @commands.command(name="play")
-    async def play(self, ctx, *, search: str):
+    async def play(self, ctx, *, search: str = None):
         player = await get_player(ctx)
+
+        if search is None:
+            if player.paused:
+                await player.pause(False)
+                return await ctx.send("▶️ Reanudando reproducción.")
+            return await ctx.send("Debes indicar una URL para reproducir si no estoy en pausa.")
+            
 
         if not hasattr(player, "custom_queue"):
             player.custom_queue = []
