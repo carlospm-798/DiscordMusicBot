@@ -6,18 +6,18 @@
 def message():
 
     help_message = """
-    📜 **Lista de Comandos** 📜
+    📜 **Commands list** 📜
 
-    **🎤 Comandos Básicos**
-    - `!join` → Hace que el bot se una al canal de voz.
-    - `!leave` → Expulsa al bot del canal de voz.
-    - `!play < + SoundCloud URL>` → Agrega una canción o una playlist a la cola.
-    - `!pause` → Detiene la canción actual.
-    - `!play` → Reanuda la reproducción de música.
-    - `!next` → Comienza a reproducir la siguiente canción.
-    - `!prev` → Comienza a reproducir la canción anterior.
+    **🎤 Basic commands**
+    - `!join` → Joins the bot to the discord voice channel.
+    - `!leave` → Push out the bot of the discord voice channel.
+    - `!play < + SoundCloud URL>` → Add a song or a playlist to the queue.
+    - `!pause` → Pause the actual song.
+    - `!play` → Re-runs the actual song.
+    - `!next` → Reproduce the next song of the queue.
+    - `!prev` → Reproduce the past song of the queue.
 
-    ¡Disfruta de la música! 🎵
+    ¡Enjoy the music! 🎵
     """
 
     return help_message
