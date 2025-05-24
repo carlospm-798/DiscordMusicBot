@@ -25,11 +25,8 @@ class Events(commands.Cog):
             return
 
         if msg.content.strip().lower() == "!help":
-            help_text = get_help_message()
-            await msg.channel.send(help_text)
-            return                         
-
-        await self.bot.process_commands(msg)
+            await msg.channel.send(get_help_message())
+            return
 
 #   --------------------------------------------------------------------------      #
 #   on_message:             It filter all the messages send by the user, and        #
