@@ -13,12 +13,6 @@ class Events(commands.Cog):
         cfg_path = Path(__file__).parent.parent / "application.yml"
         cfg = yaml.safe_load(cfg_path.read_text())
 
-        # Sección raíz 'server'
-        #server_cfg = cfg.get("server", {})
-        #host    = server_cfg.get("host", "localhost")
-        #port    = server_cfg.get("port", 2333)
-        # address lo ignoras aquí, Lavalink.jar ya lo tiene en bind
-
         server_cfg = cfg["server"]
         host    = server_cfg["host"]
         port    = server_cfg["port"]       
