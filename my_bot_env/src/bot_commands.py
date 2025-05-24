@@ -1,3 +1,8 @@
+#   --------------------------------------------------------------------------      #
+#   message:            Message just return a text that would be send to            #
+#                       the user, when he ask to the commands.                      #
+#   --------------------------------------------------------------------------      #
+
 def message():
 
     help_message = """
