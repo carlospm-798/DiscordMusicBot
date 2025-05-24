@@ -4,6 +4,16 @@ from pathlib import Path
 from discord.ext import commands
 from bot_commands import message as get_help_message
 
+#   --------------------------------------------------------------------------      #
+#   yaml:               yaml + Path help us to read the content, in a secure        #
+#                       way, of the file application.yml                            #
+#   wavelink:           Is the python client to connect to your lavalink            #
+#                       server, and reproduce music.                                #
+#   commands:           It's a discord submodule that provide a command system.     #
+#   get_help_message:   It's the function that I use to send the available          #
+#                       commands as a string.                                       #
+#   --------------------------------------------------------------------------      #
+
 class Events(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,16 +27,19 @@ class Events(commands.Cog):
         if msg.content.strip().lower() == "!help":
             help_text = get_help_message()
             await msg.channel.send(help_text)
-            return                          # <— aquí detenemos el flujo
+            return                         
 
-        # solo procesamos otros comandos
         await self.bot.process_commands(msg)
 
+#   --------------------------------------------------------------------------      #
+#   on_message:             It filter all the messages send by the user, and        #
+#                           when the command its !help, send back the commands      #
+#                           that are available at that time in the bot.             #
+#   --------------------------------------------------------------------------      #
 
 
     @commands.Cog.listener()
     async def on_ready(self):
-        # Ruta al application.yml
         cfg_path = Path(__file__).parent.parent / "application.yml"
         cfg = yaml.safe_load(cfg_path.read_text())
 
@@ -34,7 +47,6 @@ class Events(commands.Cog):
         host    = server_cfg["host"]
         port    = server_cfg["port"]       
 
-        # Sección 'lavalink.server'
         lavalink_srv = cfg.get("lavalink", {}).get("server", {})
         password    = lavalink_srv.get("password", "")
 
@@ -44,12 +56,18 @@ class Events(commands.Cog):
             password=password
         )
         await wavelink.Pool.connect(client=self.bot, nodes=[node])
-        
+
+#   --------------------------------------------------------------------------      #
+#   on_ready:           When the bot its connected, it shoots this function
+#                       onces, taking the data of application.yml, then it 
+#                       creates an object wavelink.Node and connects the 
+#                       bot with to that node.
+#   --------------------------------------------------------------------------      #
+
 
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload):
-        # Se dispara al terminar una pista
         player = payload.player
         track  = payload.track
         reason = payload.reason.lower()
@@ -72,10 +90,15 @@ class Events(commands.Cog):
         else:
             print("End of queue reached.")
 
-    @commands.Cog.listener()
-    async def on_socket_response(self, msg):
-        # Debug de todos los mensajes entrantes del gateway
-        print("SOCKET RESPONSE:", msg)
+#   --------------------------------------------------------------------------      #
+#   on_wavelonk_track_end:      It gets active once that a song finished, to        #
+#                               advance to the next song.                           #
+#   --------------------------------------------------------------------------      #
 
 async def setup(bot):
     await bot.add_cog(Events(bot))
+
+#   --------------------------------------------------------------------------      #
+#   add_cog:            It creates and load an instance of Events, and then it      #
+#                       registers to the bot, making available all the events.      #
+#   --------------------------------------------------------------------------      #
