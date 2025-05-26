@@ -1,3 +1,4 @@
+import random
 import wavelink
 from discord.ext import commands
 from utils import get_player, MAX_TRACKS
@@ -162,6 +163,30 @@ class Music(commands.Cog):
 #   stop:       It check that there's a playlist, and then it cleans all the        #
 #               queue.
 #   --------------------------------------------------------------------------      #
+
+    @commands.command(name="shuffle")
+    async def shuffle(self, ctx):
+
+        player = await get_player(ctx)
+
+        if not hasattr(player, "custom_queue") or not player.custom_queue:
+            return await ctx.send("❌ No hay música en la cola para mezclar.")
+        
+        current = player.queue_index
+
+        already_played = player.custom_queue[: current + 1]
+        to_shuffle = player.custom_queue[current + 1 :]
+
+        random.shuffle(to_shuffle)
+
+        player.custom_queue = already_played + to_shuffle
+
+        await ctx.send("🔀 ¡Cola mezclada aleatoriamente a partir de la pista actual!")
+
+        if not to_shuffle:
+            return await ctx.send("❌ No hay canciones pendientes para mezclar.")
+        
+
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

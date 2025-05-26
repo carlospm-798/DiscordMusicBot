@@ -17,6 +17,7 @@ def message():
     - `!next` → Reproduce the next song of the queue.
     - `!prev` → Reproduce the past song of the queue.
     - `!stop` → Stops and deletes the actual playlist.
+    - `!shuffle` → Creates a random mix of the available playlist.
 
     ¡Enjoy the music! 🎵
     """
