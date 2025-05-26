@@ -186,6 +186,10 @@ class Music(commands.Cog):
         if not to_shuffle:
             return await ctx.send("❌ No hay canciones pendientes para mezclar.")
         
+#   --------------------------------------------------------------------------      #
+#   shuffle:        Takes the songs that are not played yet, and mixes it           #
+#                   in a random way.                                                #
+#   --------------------------------------------------------------------------      #
 
 
 async def setup(bot):
