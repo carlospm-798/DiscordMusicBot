@@ -144,6 +144,25 @@ class Music(commands.Cog):
 #               past song, notifying to the channel.                                #
 #   --------------------------------------------------------------------------      #
 
+    @commands.command(name="stop")
+    async def stop(self, ctx):
+
+        player = await get_player(ctx)
+
+        if getattr(player, "playing", False) or getattr(player, "paused", False):
+            await player.stop()
+        
+        if hasattr(player, "custom_queue"):
+            player.custom_queue.clear()
+            player.queue_index = -1
+        
+        await ctx.send("⏹️ Reproducción detenida y cola vaciada.")
+
+#   --------------------------------------------------------------------------      #
+#   stop:       It check that there's a playlist, and then it cleans all the        #
+#               queue.
+#   --------------------------------------------------------------------------      #
+
 async def setup(bot):
     await bot.add_cog(Music(bot))
 

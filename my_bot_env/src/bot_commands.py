@@ -16,6 +16,7 @@ def message():
     - `!play` → Re-runs the actual song.
     - `!next` → Reproduce the next song of the queue.
     - `!prev` → Reproduce the past song of the queue.
+    - `!stop` → Stops and deletes the actual playlist.
 
     ¡Enjoy the music! 🎵
     """
